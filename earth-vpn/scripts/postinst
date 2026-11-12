@@ -1,8 +1,19 @@
 #!/bin/sh
 set -e
 chmod 4755 '/opt/Earth VPN/chrome-sandbox'
-if command -v apparmor_parser >/dev/null 2>&1 && apparmor_parser --skip-kernel-load --debug '/opt/Earth VPN/resources/apparmor-profile' >/dev/null 2>&1; then
-  cp '/opt/Earth VPN/resources/apparmor-profile' /etc/apparmor.d/earth-vpn
-  apparmor_parser --replace --write-cache /etc/apparmor.d/earth-vpn || true
+# Ubuntu 24+ restricts unprivileged user namespaces. Permit Electron's
+# namespace sandbox for this root-owned executable only.
+profile='/opt/Earth VPN/resources/engine/earth-vpn.apparmor'
+if command -v apparmor_parser >/dev/null 2>&1 &&
+   [ "$(cat /sys/module/apparmor/parameters/enabled 2>/dev/null)" = Y ]; then
+  if apparmor_parser --skip-kernel-load --debug "$profile" >/dev/null 2>&1; then
+    install -m 644 "$profile" /etc/apparmor.d/earth-vpn
+    apparmor_parser --replace --write-cache /etc/apparmor.d/earth-vpn
+  elif [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null)" = 1 ]; then
+    echo 'Earth VPN: could not validate the required AppArmor userns profile.' >&2
+    exit 1
+  fi
 fi
-if command -v update-desktop-database >/dev/null 2>&1; then update-desktop-database /usr/share/applications || true; fi
+if command -v update-desktop-database >/dev/null 2>&1; then
+  update-desktop-database /usr/share/applications || true
+fi

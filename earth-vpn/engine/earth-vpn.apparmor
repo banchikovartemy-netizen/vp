@@ -1,0 +1,5 @@
+abi <abi/4.0>,
+include <tunables/global>
+profile earth-vpn "/opt/Earth VPN/earth-vpn" flags=(unconfined) {
+  userns,
+}
