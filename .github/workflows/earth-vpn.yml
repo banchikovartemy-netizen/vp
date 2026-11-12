@@ -28,17 +28,17 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Earth-VPN-Ubuntu-amd64
-          path: earth-vpn/release/Earth-VPN-1.0.0-amd64.deb
+          path: earth-vpn/release/Earth-VPN-1.1.0-amd64.deb
       - name: Publish installer
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           cat > /tmp/notes.md <<'NOTES'
-          Установщик Earth VPN для Ubuntu amd64.
+          Earth VPN 1.1.0 для Ubuntu amd64. Земля 8K, Млечный Путь, яркие звёзды и далёкое Солнце. Поддержка HTTPS-перенаправлений подписки в пределах одного сайта.
           Проверены Electron, WebGL, разбор подписок и локальная передача данных VLESS.
           Системное TUN-подключение, смена IP, DNS и восстановление сети с рабочей подпиской ещё не проверены.
           NOTES
-          if ! gh release view v1.0.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release create v1.0.0 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "Earth VPN 1.0.0 · Ubuntu amd64" --notes-file /tmp/notes.md --prerelease
+          if ! gh release view v1.1.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create v1.1.0 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "Earth VPN 1.1.0 · Ubuntu amd64" --notes-file /tmp/notes.md --prerelease
           fi
-          gh release upload v1.0.0 release/Earth-VPN-1.0.0-amd64.deb --repo "$GITHUB_REPOSITORY" --clobber
+          gh release upload v1.1.0 release/Earth-VPN-1.1.0-amd64.deb --repo "$GITHUB_REPOSITORY" --clobber

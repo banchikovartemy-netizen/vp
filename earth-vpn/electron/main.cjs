@@ -1,3 +1,4 @@
+const {download}=require('./download.cjs');
 const {app,BrowserWindow,ipcMain}=require('electron'),fs=require('node:fs/promises'),path=require('node:path'),net=require('node:net'),{spawn}=require('node:child_process'),{parse}=require('./subscription.cjs');
 let win,store={nodes:[],groups:[],warnings:[]},proc,state={status:'DISCONNECTED'},closing=false;
 const location=()=>path.join(app.getPath('userData'),'subscription.json');
@@ -11,7 +12,7 @@ win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('
 await win.loadFile(path.join(__dirname,'../dist/index.html'));
 });
 ipcMain.handle('load',safe(async()=>({...store,state})));
-ipcMain.handle('update',safe(serial(async url=>{const u=new URL(url);if(u.protocol!=='https:')throw Error('Subscription URL must use HTTPS');let res;try{res=await fetch(u,{signal:AbortSignal.timeout(20000),redirect:'error',headers:{'User-Agent':'EarthVPN/1.0'}})}catch{throw Error('HTTPS request failed (redirects are disabled; use final subscription URL)')}if(!res.ok)throw Error('Subscription HTTP '+res.status);const reader=res.body.getReader();let chunks=[],size=0;while(true){const {done,value}=await reader.read();if(done)break;size+=value.length;if(size>4*1024*1024){await reader.cancel();throw Error('Subscription exceeds 4 MiB')}chunks.push(value)}const next=parse(Buffer.concat(chunks).toString('utf8'));await fs.mkdir(app.getPath('userData'),{recursive:true,mode:0o700});await fs.writeFile(location(),JSON.stringify(next),{mode:0o600});await stop();store=next;return store})));
+ipcMain.handle('update',safe(serial(async url=>{const next=parse(await download(url));await fs.mkdir(app.getPath('userData'),{recursive:true,mode:0o700});await fs.writeFile(location(),JSON.stringify(next),{mode:0o600});await stop();store=next;return store})));
 ipcMain.handle('ping',safe(async()=>{let i=0;const results={};await Promise.all(Array.from({length:8},async()=>{while(i<store.nodes.length){const n=store.nodes[i++];results[n.id]=await new Promise(resolve=>{const start=performance.now(),s=net.connect({host:n.server,port:n.server_port});let done=false;const finish=v=>{if(done)return;done=true;s.destroy();resolve(v)};s.setTimeout(3500,()=>finish(null));s.once('connect',()=>finish(Math.round(performance.now()-start)));s.once('error',()=>finish(null))})}}));return results}));
 ipcMain.handle('connect',safe(serial(async id=>{const n=store.nodes.find(n=>n.id===id);if(!n)throw Error('Server not found');await stop();send({status:'CONNECTING',id});
 const engine=app.isPackaged?path.join(process.resourcesPath,'engine'):path.join(__dirname,'../engine');

@@ -1,6 +1,6 @@
 {
   "name": "earth-vpn",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Earth VPN for Ubuntu",
   "author": "Earth VPN",
   "main": "electron/main.cjs",

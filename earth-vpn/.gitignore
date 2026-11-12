@@ -3,3 +3,6 @@ dist/
 release/
 deb-stage/
 *.png
+
+node_modules
+engine/sing-box

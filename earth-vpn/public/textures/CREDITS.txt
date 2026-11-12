@@ -1,0 +1,6 @@
+Earth day map (8192 x 4096) and Milky Way panorama (8192 x 4096):
+Solar System Scope, CC BY 4.0.
+https://www.solarsystemscope.com/textures/
+https://creativecommons.org/licenses/by/4.0/
+Retrieved from the alsbury/earth-threejs mirror (Git LFS).
+The panorama is an artistic all-sky view from inside the Milky Way.
