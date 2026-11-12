@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+chmod 4755 '/opt/Earth VPN/chrome-sandbox'
+if command -v apparmor_parser >/dev/null 2>&1 && apparmor_parser --skip-kernel-load --debug '/opt/Earth VPN/resources/apparmor-profile' >/dev/null 2>&1; then
+  cp '/opt/Earth VPN/resources/apparmor-profile' /etc/apparmor.d/earth-vpn
+  apparmor_parser --replace --write-cache /etc/apparmor.d/earth-vpn || true
+fi
+if command -v update-desktop-database >/dev/null 2>&1; then update-desktop-database /usr/share/applications || true; fi

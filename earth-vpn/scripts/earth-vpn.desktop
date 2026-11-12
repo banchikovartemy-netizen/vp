@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Earth VPN
+Comment=Earth VPN · sing-box
+Exec="/opt/Earth VPN/earth-vpn"
+Terminal=false
+Type=Application
+Categories=Network;
+StartupWMClass=earth-vpn

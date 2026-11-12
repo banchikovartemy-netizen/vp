@@ -1,0 +1,2 @@
+const {contextBridge,ipcRenderer}=require('electron');
+contextBridge.exposeInMainWorld('earth',{load:()=>ipcRenderer.invoke('load'),update:u=>ipcRenderer.invoke('update',u),ping:()=>ipcRenderer.invoke('ping'),connect:id=>ipcRenderer.invoke('connect',id),disconnect:()=>ipcRenderer.invoke('disconnect'),onState:cb=>{const f=(_,s)=>cb(s);ipcRenderer.on('state',f);return()=>ipcRenderer.removeListener('state',f)}});

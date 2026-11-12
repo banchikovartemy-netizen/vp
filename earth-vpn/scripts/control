@@ -1,0 +1,9 @@
+Package: earth-vpn
+Version: 1.0.0
+Section: net
+Priority: optional
+Architecture: amd64
+Maintainer: Earth VPN
+Depends: libgtk-3-0, libnss3, libasound2, libgbm1, libxss1, libxtst6, polkitd, pkexec, nodejs
+Description: Earth VPN desktop client using sing-box
+ Interactive Three.js globe and VLESS VPN client for Ubuntu.

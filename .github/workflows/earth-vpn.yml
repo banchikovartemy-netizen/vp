@@ -1,0 +1,44 @@
+name: Earth VPN installer
+on:
+  push:
+    paths: ['earth-vpn/**', '.github/workflows/earth-vpn.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: earth-vpn
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: earth-vpn/package-lock.json
+      - name: Download sing-box 1.14.4
+        run: |
+          curl -fL https://github.com/SagerNet/sing-box/releases/download/v1.14.4/sing-box-1.14.4-linux-amd64.tar.gz -o /tmp/sing-box.tar.gz
+          tar xzf /tmp/sing-box.tar.gz --strip-components=1 -C engine
+      - run: npm ci
+      - run: npm test
+      - run: npm run dist
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Earth-VPN-Ubuntu-amd64
+          path: earth-vpn/release/Earth-VPN-1.0.0-amd64.deb
+      - name: Publish installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > /tmp/notes.md <<'NOTES'
+          Установщик Earth VPN для Ubuntu amd64.
+          Проверены Electron, WebGL, разбор подписок и локальная передача данных VLESS.
+          Системное TUN-подключение, смена IP, DNS и восстановление сети с рабочей подпиской ещё не проверены.
+          NOTES
+          if ! gh release view v1.0.0 --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create v1.0.0 --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "Earth VPN 1.0.0 · Ubuntu amd64" --notes-file /tmp/notes.md --prerelease
+          fi
+          gh release upload v1.0.0 release/Earth-VPN-1.0.0-amd64.deb --repo "$GITHUB_REPOSITORY" --clobber
